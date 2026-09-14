@@ -37,15 +37,15 @@
             padding:7px 8px; height:100%; overflow:hidden; }
   .cname { font-size:13.5px; font-weight:700; line-height:1.35; margin-bottom:4px; }
   .cmeta { font-size:11.5px; line-height:1.5; color:#3c4557; }
-  /* 起床/早炼/早餐/早读/午餐/午休/晚餐/就寝/熄灯：整行横跨周一~周日 */
+  /* 起床/早炼/早餐/早读/午餐/午休/晚餐/就寝/熄灯：整行横跨周一~周五 */
   .timetable td.misc-cell { height:auto; padding:11px 5px; background:#fbfcfe; text-align:center;
                             font-size:13.5px; font-weight:700; color:#1f2d5a; letter-spacing:3px; }
   .misc-time { display:block; font-size:11.5px; color:#1f2d5a; font-weight:700;
                font-variant-numeric:tabular-nums; }
-  body.hide-zaolian tr.m-zaolian,
-  body.hide-zaodu tr.m-zaodu,
-  body.hide-meal tr.m-meal,
-  body.hide-life tr.m-life { display:none; }
+  body.hide-zaolian tr.m-zaolian, body.hide-zaolian .m-misc.m-zaolian,
+  body.hide-zaodu tr.m-zaodu, body.hide-zaodu .m-misc.m-zaodu,
+  body.hide-meal tr.m-meal, body.hide-meal .m-misc.m-meal,
+  body.hide-life tr.m-life, body.hide-life .m-misc.m-life { display:none; }
   /* 侧边显示选项（等价 Excel 左侧的折叠按钮） */
   .sidebar { position:fixed; left:16px; top:118px; width:200px; z-index:20; background:#fff;
              border-radius:12px; box-shadow:0 4px 18px rgba(23,37,84,.12); padding:13px 14px 12px; }
@@ -79,6 +79,11 @@
   .wx-refresh { font:inherit; font-size:13px; line-height:1; cursor:pointer; color:#1f2d5a;
                 background:#f7f9fd; border:1px solid #d7deeb; border-radius:6px; padding:3px 7px; }
   .wx-refresh:hover { background:#eef2fa; }
+  .wx-refresh.is-busy { color:#98a1b3; cursor:progress; }
+  .wx-refresh.is-ok { color:#137333; background:#e6f4ea; border-color:#a8d5b5; }
+  .wx-rf { display:inline-block; }
+  .wx-refresh.is-busy .wx-rf { animation:wx-spin .8s linear infinite; }
+  @keyframes wx-spin { to { transform:rotate(360deg); } }
   .wx-now { display:flex; align-items:center; gap:9px; }
   .wx-ico { font-size:26px; line-height:1; }
   .wx-temp { font-size:22px; font-weight:700; color:#1f2d5a; line-height:1.1;
@@ -91,14 +96,28 @@
   .wx-tip.lv1 { background:#fff4e5; color:#b06000; }
   .wx-tip.lv0 { background:#e6f4ea; color:#137333; }
   .wx-tip-sub { font-size:10.5px; color:#6b7280; margin-top:5px; line-height:1.6; }
+  /* 官方（中国气象局）今日预报：只看今天 */
+  .wx-today { font-size:11px; color:#3c4557; margin-top:8px; line-height:1.7; background:#f7f9fd;
+              border-radius:8px; padding:6px 9px; }
+  .wx-today b { color:#1f2d5a; }
+  /* 免责声明 */
+  .wx-note { font-size:10.5px; color:#98a1b3; margin-top:6px; line-height:1.5; }
+  /* 分时预报窗口切换：6 / 12 / 24 小时 */
+  .wx-seg { display:flex; gap:5px; margin:0 0 7px; }
+  .wx-seg-b { flex:1 1 0; font:inherit; font-size:11px; cursor:pointer; color:#3c4557;
+              background:#f7f9fd; border:1px solid #d7deeb; border-radius:6px; padding:4px 0;
+              transition:background .15s, color .15s, border-color .15s; }
+  .wx-seg-b:hover { background:#eef2fa; }
+  .wx-seg-b.is-on { background:#1f2d5a; border-color:#1f2d5a; color:#fff; font-weight:600; }
+  .wx-src { font-size:9.5px; color:#b3bacb; margin-top:3px; line-height:1.5; }
   .wx-sub { font-size:10.5px; font-weight:700; color:#98a1b3; letter-spacing:.5px; margin:11px 0 5px; }
   .wx-hrow { display:flex; align-items:center; justify-content:space-between; font-size:11px;
              color:#3c4557; padding:2px 0; font-variant-numeric:tabular-nums; }
-  .wx-hrow span:first-child { color:#6b7280; width:42px; }
+  .wx-hrow span:first-child { color:#6b7280; width:56px; }
   .wx-hrow span:last-child { color:#1967d2; width:34px; text-align:right; }
-  .wx-drow { display:flex; align-items:center; justify-content:space-between; font-size:11px;
-             color:#3c4557; padding:3px 0; border-top:1px solid #f2f5fa; }
   .wx-updated { font-size:10px; color:#98a1b3; margin-top:10px; text-align:right; line-height:1.5; }
+  .wx-updated.is-ok { color:#137333; }
+  .wx-updated.is-old { color:#b06000; }
   .wx-msg { font-size:11.5px; color:#6b7280; line-height:1.6; }
   .wx-msg button { margin-top:7px; font:inherit; font-size:11px; cursor:pointer; color:#1f2d5a;
                    background:#f7f9fd; border:1px solid #d7deeb; border-radius:6px; padding:4px 10px; }
@@ -134,11 +153,137 @@
     .sb-actions { flex:0 0 auto; }
     .sb-actions button { flex:0 0 auto; padding:6px 12px; }
     .weather { position:static; width:auto; max-height:none; overflow:visible; margin:0 0 16px; padding:12px 14px; }
-    .wx-hourly, .wx-daily { max-width:520px; }
+    .wx-hourly, .wx-today, .wx-seg { max-width:520px; }
+  }
+  /* ===== 封面：进入前先选设备 ===== */
+  .cover { position:fixed; inset:0; z-index:200; display:flex; align-items:center; justify-content:center;
+           padding:22px; background:linear-gradient(160deg,#1b2749 0%,#2b3d75 56%,#3a55a5 100%); }
+  html.ready .cover { display:none; }
+  .cover-box { width:100%; max-width:430px; background:#fff; border-radius:18px; padding:28px 24px 20px;
+               text-align:center; box-shadow:0 20px 54px rgba(0,0,0,.32); }
+  .cover-badge { display:inline-block; font-size:12px; font-weight:700; color:#1f2d5a; background:#eef1f8;
+                 border-radius:999px; padding:4px 13px; margin-bottom:13px; letter-spacing:.5px; }
+  .cover-title { font-size:22px; font-weight:700; color:#1f2430; letter-spacing:1px; }
+  .cover-sub { margin:8px 0 20px; font-size:13px; color:#6b7280; line-height:1.6; }
+  .cover-opts { display:flex; gap:12px; }
+  .cover-btn { flex:1 1 0; display:flex; flex-direction:column; align-items:center; gap:5px; cursor:pointer;
+               font:inherit; padding:17px 6px 15px; border-radius:14px; border:2px solid #d7deeb;
+               background:#f7f9fd; transition:border-color .15s, background .15s, transform .12s; }
+  .cover-btn:hover { border-color:#1f2d5a; background:#eef2fa; }
+  .cover-btn:active { transform:translateY(1px); }
+  .cover-btn.is-suggest { border-color:#1f2d5a; background:#e8eefe; }
+  .cb-ico { font-size:30px; line-height:1; }
+  .cb-name { font-size:15px; font-weight:700; color:#1f2d5a; }
+  .cb-desc { font-size:11.5px; color:#6b7280; }
+  .cover-tip { margin:18px 0 0; font-size:11.5px; color:#98a1b3; }
+  /* ===== 手机端专用视图：桌面模式下完全不出现 ===== */
+  .m-wrap, .m-list { display:none; }
+  html.mode-mobile .m-wrap, html.mode-mobile .m-list { display:block; }
+  html.mode-mobile .timetable-card,
+  html.mode-mobile .list-card { display:none !important; }
+  html.mode-mobile .h2-list { display:none; }
+  html.mode-mobile body { padding:14px 12px 36px; }
+  html.mode-mobile .page { max-width:100%; margin:0; display:flex; flex-direction:column; }
+  /* 手机端同样保留「显示选项」开关，并把顺序排成：天气 → 显示选项 → 当天课表 */
+  html.mode-mobile header { order:1; }
+  html.mode-mobile .weather { order:2; }
+  html.mode-mobile .sidebar { order:3; position:static; width:auto; margin:0 0 14px; padding:12px 13px 11px;
+                             display:flex; align-items:center; flex-wrap:wrap; gap:9px 16px; }
+  html.mode-mobile .m-wrap { order:4; }
+  html.mode-mobile h2, html.mode-mobile .legend, html.mode-mobile .m-list,
+  html.mode-mobile .mode-bar, html.mode-mobile footer { order:5; }
+  html.mode-mobile .sb-title { margin:0; }
+  html.mode-mobile .switch + .switch { margin-top:0; }
+  html.mode-mobile .sb-sep { display:none; }
+  html.mode-mobile .sb-hint { margin:0; flex:1 1 100%; font-size:10.5px; }
+  html.mode-mobile .sb-actions { flex:1 1 100%; }
+  html.mode-mobile .sb-actions button { font-size:12px; padding:7px 4px; }
+  html.mode-mobile header { flex-direction:column; align-items:stretch; gap:11px; margin-bottom:13px; }
+  html.mode-mobile h1 { font-size:19px; letter-spacing:.5px; }
+  html.mode-mobile .sub { font-size:12px; }
+  html.mode-mobile .clock { text-align:left; min-width:0; padding:9px 13px 8px; }
+  html.mode-mobile .clk-time { font-size:22px; }
+  html.mode-mobile .weather { position:static; width:auto; max-height:none; overflow:visible;
+                              margin:0 0 14px; padding:12px 13px 11px; }
+  html.mode-mobile .card { padding:12px; }
+  html.mode-mobile h2 { font-size:15px; margin:20px 0 9px; }
+  .m-tabs { display:flex; gap:6px; margin:0 0 12px; }
+  .m-tab { flex:1 1 0; font:inherit; font-size:13px; font-weight:600; color:#1f2d5a; cursor:pointer;
+           padding:9px 0; border-radius:9px; border:1px solid #d7deeb; background:#fff;
+           transition:background .15s, color .15s, border-color .15s; }
+  .m-tab.is-active { background:#1f2d5a; border-color:#1f2d5a; color:#fff; }
+  .m-hint { background:#fff; border-radius:12px; padding:24px 14px; text-align:center; color:#98a1b3;
+            font-size:13px; box-shadow:0 4px 18px rgba(23,37,84,.08); }
+  .m-hint.is-hidden { display:none; }
+  .m-day { display:none; }
+  .m-day.is-on { display:block; }
+  .m-slot { margin-bottom:11px; }
+  .m-hd { display:flex; align-items:baseline; gap:8px; margin:0 0 6px 2px; }
+  .m-hd b { font-size:13.5px; color:#1f2d5a; }
+  .m-hd span { font-size:11.5px; color:#6b7280; font-variant-numeric:tabular-nums; }
+  /* 无课的时间段：保留一张空白占位卡片，时间线不断档 */
+  .m-empty { background:#fbfcfe; border:1px dashed #dbe2ee; border-radius:10px; padding:11px 13px;
+             color:#a8b1c2; font-size:12.5px; text-align:center; }
+  .m-slot.is-empty .m-hd b { color:#98a1b3; }
+  .m-course { background:var(--bg); border-left:4px solid var(--fg); border-radius:10px;
+              padding:11px 13px; margin-bottom:8px; }
+  .m-cn { font-size:15px; font-weight:700; color:var(--fg); line-height:1.35; margin-bottom:5px; }
+  .m-cm { font-size:12.5px; color:#3c4557; line-height:1.68; }
+  /* 作息行：跟着课程时间线穿插显示（起床/早炼/早餐/午餐/午休/晚餐/就寝/熄灯） */
+  .m-misc { display:flex; align-items:center; gap:9px; background:#f1f4fa; border-radius:8px;
+            padding:6px 11px; margin:0 0 6px; font-size:12px; }
+  .m-misc-t { color:#8b95a8; font-size:11px; font-variant-numeric:tabular-nums; flex:0 0 auto; }
+  .m-misc-n { color:#3c4557; font-weight:600; letter-spacing:.5px; }
+  .m-none { background:#fff; border-radius:12px; padding:26px 14px; text-align:center; color:#98a1b3;
+            font-size:13px; box-shadow:0 4px 18px rgba(23,37,84,.08); }
+  .m-item { background:#fff; border-radius:12px; padding:12px 14px; margin-bottom:10px;
+            box-shadow:0 3px 14px rgba(23,37,84,.07); }
+  .m-item-hd { display:flex; align-items:center; font-size:14.5px; font-weight:700; color:#1f2430;
+               margin-bottom:7px; line-height:1.4; }
+  .m-item-row { display:flex; font-size:12.5px; line-height:1.75; color:#3c4557; }
+  .m-item-row span { flex:0 0 78px; color:#98a1b3; }
+  .m-item-row em { flex:1 1 auto; font-style:normal; }
+  /* 底部：随时切换设备 */
+  .mode-bar { display:flex; align-items:center; justify-content:center; gap:8px; margin-top:22px;
+              font-size:12px; color:#98a1b3; }
+  .mode-switch { font:inherit; font-size:12px; cursor:pointer; color:#1f2d5a; background:#fff;
+                 border:1px solid #d7deeb; border-radius:7px; padding:5px 13px; }
+  .mode-switch:hover { background:#eef2fa; }
+  /* 兜底：窄屏却选了「电脑」时，课表可横向滚动而不是被压扁 */
+  @media (max-width:640px) {
+    html.mode-desktop .timetable-card { overflow-x:auto; }
+    html.mode-desktop table.timetable { min-width:620px; }
+    html.mode-desktop table.list { display:block; overflow-x:auto; }
   }
 </style>
+<script>/* 尽早读取上次选择的设备，避免进入页面时闪一下封面 */
+(function(){try{var m=localStorage.getItem('dw_view_mode');
+if(m==='mobile'||m==='desktop'){document.documentElement.classList.add('mode-'+m,'ready');}}catch(e){}})();
+</script>
 </head>
 <body>
+
+<div class="cover" id="cover">
+  <div class="cover-box">
+    <div class="cover-badge">26商英2</div>
+    <div class="cover-title">班级课程表</div>
+    <p class="cover-sub">请选择你正在使用的设备<br>我们会自动调整成最适合的版面</p>
+    <div class="cover-opts">
+      <button type="button" class="cover-btn" data-mode="mobile">
+        <span class="cb-ico">&#128241;</span>
+        <span class="cb-name">手机</span>
+        <span class="cb-desc">按天查看 · 字大清晰</span>
+      </button>
+      <button type="button" class="cover-btn" data-mode="desktop">
+        <span class="cb-ico">&#128187;</span>
+        <span class="cb-name">电脑</span>
+        <span class="cb-desc">完整课表 · 侧栏天气</span>
+      </button>
+    </div>
+    <p class="cover-tip">选择后会记住，下次直接进入</p>
+  </div>
+</div>
+
 <div class="page">
   <header>
     <div class="hd-main">
@@ -185,7 +330,7 @@
   <aside class="weather">
     <div class="wx-head">
       <span class="wx-title">河源校区 · 天气</span>
-      <button type="button" class="wx-refresh" id="wx-refresh" title="刷新天气">&#8635;</button>
+      <button type="button" class="wx-refresh" id="wx-refresh" title="刷新天气"><span class="wx-rf">&#8635;</span></button>
     </div>
     <div class="wx-msg" id="wx-loading">正在获取天气…</div>
     <div class="wx-msg is-hidden" id="wx-error">
@@ -201,33 +346,55 @@
         </div>
       </div>
       <div class="wx-meta" id="wx-meta"></div>
+      <div class="wx-today" id="wx-today"></div>
       <div class="wx-tip lv0" id="wx-tip">&mdash;</div>
       <div class="wx-tip-sub" id="wx-tip-sub"></div>
-      <div id="wx-hourly"></div>
-      <div id="wx-daily"></div>
+      <div class="wx-note">仅为预测，建议备伞！</div>
+      <div class="wx-sub" id="wx-sub">分时预报</div>
+      <div class="wx-seg" id="wx-seg">
+        <button type="button" class="wx-seg-b" data-span="6">6 小时</button>
+        <button type="button" class="wx-seg-b" data-span="12">12 小时</button>
+        <button type="button" class="wx-seg-b" data-span="24">24 小时</button>
+      </div>
+      <div class="wx-hourly" id="wx-hourly"></div>
       <div class="wx-updated" id="wx-updated"></div>
+      <div class="wx-src" id="wx-src"></div>
     </div>
   </aside>
 
-  <div class="card">
+  <div class="m-wrap">
+    <div class="m-tabs"><button type="button" class="m-tab" data-d="一">周一</button><button type="button" class="m-tab" data-d="二">周二</button><button type="button" class="m-tab" data-d="三">周三</button><button type="button" class="m-tab" data-d="四">周四</button><button type="button" class="m-tab" data-d="五">周五</button></div>
+    <div class="m-hint" id="m-hint">点上面的星期，查看当天课程与作息</div>
+    <div class="m-day" data-d="一"><div class="m-misc m-life"><span class="m-misc-t">上午 06:30</span><span class="m-misc-n">起床</span></div><div class="m-misc m-zaolian"><span class="m-misc-t">上午 06:40-06:50</span><span class="m-misc-n">早炼</span></div><div class="m-misc m-meal"><span class="m-misc-t">上午 06:50-07:50</span><span class="m-misc-n">早餐</span></div><div class="m-misc m-zaodu"><span class="m-misc-t">上午 07:50-08:00</span><span class="m-misc-n">早读</span></div><div class="m-slot is-empty"><div class="m-hd"><b>1-2 节</b><span>上午 08:20-09:50</span></div><div class="m-empty">无课</div></div><div class="m-slot is-empty"><div class="m-hd"><b>3-4 节</b><span>上午 10:10-11:40</span></div><div class="m-empty">无课</div></div><div class="m-misc m-meal"><span class="m-misc-t">中午 11:40-12:50</span><span class="m-misc-n">午餐</span></div><div class="m-misc m-life"><span class="m-misc-t">中午 12:50-13:40</span><span class="m-misc-n">午休</span></div><div class="m-slot is-empty"><div class="m-hd"><b>5-6 节</b><span>下午 13:50-15:20</span></div><div class="m-empty">无课</div></div><div class="m-slot"><div class="m-hd"><b>7-8 节</b><span>下午 15:40-17:10</span></div><div class="m-course" style="--bg:#e8f0fe;--fg:#1967d2"><div class="m-cn">综合商务英语Ⅰ</div><div class="m-cm">谭雯婷</div><div class="m-cm">唯实楼401</div><div class="m-cm">2-15周(7-8节)</div></div></div><div class="m-misc m-meal"><span class="m-misc-t">晚上 17:10-18:30</span><span class="m-misc-n">晚餐</span></div><div class="m-slot"><div class="m-hd"><b>9-11 节</b><span>晚上 18:40-21:00</span></div><div class="m-course" style="--bg:#fce8e6;--fg:#c5221f"><div class="m-cn">形势与政策（1)上</div><div class="m-cm">王海岑</div><div class="m-cm">大讲堂203</div><div class="m-cm">3周(9-11节)</div></div></div><div class="m-misc m-life"><span class="m-misc-t">晚上 23:00</span><span class="m-misc-n">就寝</span></div><div class="m-misc m-life"><span class="m-misc-t">晚上 23:10</span><span class="m-misc-n">熄灯</span></div></div><div class="m-day" data-d="二"><div class="m-misc m-life"><span class="m-misc-t">上午 06:30</span><span class="m-misc-n">起床</span></div><div class="m-misc m-zaolian"><span class="m-misc-t">上午 06:40-06:50</span><span class="m-misc-n">早炼</span></div><div class="m-misc m-meal"><span class="m-misc-t">上午 06:50-07:50</span><span class="m-misc-n">早餐</span></div><div class="m-misc m-zaodu"><span class="m-misc-t">上午 07:50-08:00</span><span class="m-misc-n">早读</span></div><div class="m-slot"><div class="m-hd"><b>1-2 节</b><span>上午 08:20-09:50</span></div><div class="m-course" style="--bg:#e8f0fe;--fg:#1967d2"><div class="m-cn">综合商务英语Ⅰ</div><div class="m-cm">谭雯婷</div><div class="m-cm">唯实楼401</div><div class="m-cm">2-15周(1-2节)</div></div></div><div class="m-slot is-empty"><div class="m-hd"><b>3-4 节</b><span>上午 10:10-11:40</span></div><div class="m-empty">无课</div></div><div class="m-misc m-meal"><span class="m-misc-t">中午 11:40-12:50</span><span class="m-misc-n">午餐</span></div><div class="m-misc m-life"><span class="m-misc-t">中午 12:50-13:40</span><span class="m-misc-n">午休</span></div><div class="m-slot"><div class="m-hd"><b>5-6 节</b><span>下午 13:50-15:20</span></div><div class="m-course" style="--bg:#fef7e0;--fg:#b06000"><div class="m-cn">中国近现代史纲要</div><div class="m-cm">宋鹏飞</div><div class="m-cm">大讲堂203</div><div class="m-cm">2-15周(6-8节)</div></div></div><div class="m-slot"><div class="m-hd"><b>7-8 节</b><span>下午 15:40-17:10</span></div><div class="m-course" style="--bg:#fef7e0;--fg:#b06000"><div class="m-cn">中国近现代史纲要</div><div class="m-cm">宋鹏飞</div><div class="m-cm">大讲堂203</div><div class="m-cm">2-15周(6-8节)</div></div></div><div class="m-misc m-meal"><span class="m-misc-t">晚上 17:10-18:30</span><span class="m-misc-n">晚餐</span></div><div class="m-slot"><div class="m-hd"><b>9-11 节</b><span>晚上 18:40-21:00</span></div><div class="m-course" style="--bg:#e6f4ea;--fg:#137333"><div class="m-cn">商务英语口语I</div><div class="m-cm">BATHAIIAN LUQMAN SADAT</div><div class="m-cm">求新楼624</div><div class="m-cm">2-15周(9-10节)</div></div></div><div class="m-misc m-life"><span class="m-misc-t">晚上 23:00</span><span class="m-misc-n">就寝</span></div><div class="m-misc m-life"><span class="m-misc-t">晚上 23:10</span><span class="m-misc-n">熄灯</span></div></div><div class="m-day" data-d="三"><div class="m-misc m-life"><span class="m-misc-t">上午 06:30</span><span class="m-misc-n">起床</span></div><div class="m-misc m-zaolian"><span class="m-misc-t">上午 06:40-06:50</span><span class="m-misc-n">早炼</span></div><div class="m-misc m-meal"><span class="m-misc-t">上午 06:50-07:50</span><span class="m-misc-n">早餐</span></div><div class="m-misc m-zaodu"><span class="m-misc-t">上午 07:50-08:00</span><span class="m-misc-n">早读</span></div><div class="m-slot"><div class="m-hd"><b>1-2 节</b><span>上午 08:20-09:50</span></div><div class="m-course" style="--bg:#f3e8fd;--fg:#8430ce"><div class="m-cn">新闻英语视听说</div><div class="m-cm">欧阳含笑</div><div class="m-cm">厚德楼401</div><div class="m-cm">2-16周(1-2节)</div></div></div><div class="m-slot is-empty"><div class="m-hd"><b>3-4 节</b><span>上午 10:10-11:40</span></div><div class="m-empty">无课</div></div><div class="m-misc m-meal"><span class="m-misc-t">中午 11:40-12:50</span><span class="m-misc-n">午餐</span></div><div class="m-misc m-life"><span class="m-misc-t">中午 12:50-13:40</span><span class="m-misc-n">午休</span></div><div class="m-slot"><div class="m-hd"><b>5-6 节</b><span>下午 13:50-15:20</span></div><div class="m-course" style="--bg:#e0f7fa;--fg:#00695c"><div class="m-cn">英语国家社会与文化</div><div class="m-cm">Dima</div><div class="m-cm">唯实楼401</div><div class="m-cm">2-15周(5-6节)</div></div></div><div class="m-slot"><div class="m-hd"><b>7-8 节</b><span>下午 15:40-17:10</span></div><div class="m-course" style="--bg:#fce4ec;--fg:#c2185b"><div class="m-cn">中华民族共同体概论</div><div class="m-cm">钟元泽</div><div class="m-cm">唯实楼218</div><div class="m-cm">1-8周(7-8节)</div></div></div><div class="m-misc m-meal"><span class="m-misc-t">晚上 17:10-18:30</span><span class="m-misc-n">晚餐</span></div><div class="m-slot"><div class="m-hd"><b>9-11 节</b><span>晚上 18:40-21:00</span></div><div class="m-course" style="--bg:#efebe9;--fg:#5d4037"><div class="m-cn">军事理论</div><div class="m-cm">赵炳林</div><div class="m-cm">唯实楼318</div><div class="m-cm">3周,6-10周(9-11节)</div></div></div><div class="m-misc m-life"><span class="m-misc-t">晚上 23:00</span><span class="m-misc-n">就寝</span></div><div class="m-misc m-life"><span class="m-misc-t">晚上 23:10</span><span class="m-misc-n">熄灯</span></div></div><div class="m-day" data-d="四"><div class="m-misc m-life"><span class="m-misc-t">上午 06:30</span><span class="m-misc-n">起床</span></div><div class="m-misc m-zaolian"><span class="m-misc-t">上午 06:40-06:50</span><span class="m-misc-n">早炼</span></div><div class="m-misc m-meal"><span class="m-misc-t">上午 06:50-07:50</span><span class="m-misc-n">早餐</span></div><div class="m-misc m-zaodu"><span class="m-misc-t">上午 07:50-08:00</span><span class="m-misc-n">早读</span></div><div class="m-slot is-empty"><div class="m-hd"><b>1-2 节</b><span>上午 08:20-09:50</span></div><div class="m-empty">无课</div></div><div class="m-slot is-empty"><div class="m-hd"><b>3-4 节</b><span>上午 10:10-11:40</span></div><div class="m-empty">无课</div></div><div class="m-misc m-meal"><span class="m-misc-t">中午 11:40-12:50</span><span class="m-misc-n">午餐</span></div><div class="m-misc m-life"><span class="m-misc-t">中午 12:50-13:40</span><span class="m-misc-n">午休</span></div><div class="m-slot"><div class="m-hd"><b>5-6 节</b><span>下午 13:50-15:20</span></div><div class="m-course" style="--bg:#e8eaf6;--fg:#3949ab"><div class="m-cn">英语语音实训</div><div class="m-cm">石俏杨</div><div class="m-cm">厚德楼416</div><div class="m-cm">9-15周(5-6节)</div></div></div><div class="m-slot is-empty"><div class="m-hd"><b>7-8 节</b><span>下午 15:40-17:10</span></div><div class="m-empty">无课</div></div><div class="m-misc m-meal"><span class="m-misc-t">晚上 17:10-18:30</span><span class="m-misc-n">晚餐</span></div><div class="m-slot"><div class="m-hd"><b>9-11 节</b><span>晚上 18:40-21:00</span></div><div class="m-course" style="--bg:#fff3e0;--fg:#e65100"><div class="m-cn">大学生心理健康教育</div><div class="m-cm">成本长</div><div class="m-cm">唯实楼218</div><div class="m-cm">4-14周(9-11节)</div></div></div><div class="m-misc m-life"><span class="m-misc-t">晚上 23:00</span><span class="m-misc-n">就寝</span></div><div class="m-misc m-life"><span class="m-misc-t">晚上 23:10</span><span class="m-misc-n">熄灯</span></div></div><div class="m-day" data-d="五"><div class="m-misc m-life"><span class="m-misc-t">上午 06:30</span><span class="m-misc-n">起床</span></div><div class="m-misc m-zaolian"><span class="m-misc-t">上午 06:40-06:50</span><span class="m-misc-n">早炼</span></div><div class="m-misc m-meal"><span class="m-misc-t">上午 06:50-07:50</span><span class="m-misc-n">早餐</span></div><div class="m-misc m-zaodu"><span class="m-misc-t">上午 07:50-08:00</span><span class="m-misc-n">早读</span></div><div class="m-slot is-empty"><div class="m-hd"><b>1-2 节</b><span>上午 08:20-09:50</span></div><div class="m-empty">无课</div></div><div class="m-slot is-empty"><div class="m-hd"><b>3-4 节</b><span>上午 10:10-11:40</span></div><div class="m-empty">无课</div></div><div class="m-misc m-meal"><span class="m-misc-t">中午 11:40-12:50</span><span class="m-misc-n">午餐</span></div><div class="m-misc m-life"><span class="m-misc-t">中午 12:50-13:40</span><span class="m-misc-n">午休</span></div><div class="m-slot is-empty"><div class="m-hd"><b>5-6 节</b><span>下午 13:50-15:20</span></div><div class="m-empty">无课</div></div><div class="m-slot"><div class="m-hd"><b>7-8 节</b><span>下午 15:40-17:10</span></div><div class="m-course" style="--bg:#e8f0fe;--fg:#1967d2"><div class="m-cn">体育I(板块)</div><div class="m-cm">未排地点</div><div class="m-cm">2-14周,17-18周(7-8节)</div></div></div><div class="m-misc m-meal"><span class="m-misc-t">晚上 17:10-18:30</span><span class="m-misc-n">晚餐</span></div><div class="m-slot is-empty"><div class="m-hd"><b>9-11 节</b><span>晚上 18:40-21:00</span></div><div class="m-empty">无课</div></div><div class="m-misc m-life"><span class="m-misc-t">晚上 23:00</span><span class="m-misc-n">就寝</span></div><div class="m-misc m-life"><span class="m-misc-t">晚上 23:10</span><span class="m-misc-n">熄灯</span></div></div>
+  </div>
+
+  <div class="card timetable-card">
     <table class="timetable">
-      <thead><tr><th class="corner">节次</th><th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th><th>周六</th><th>周日</th></tr></thead>
-      <tbody><tr class="row-misc m-life"><th class="blk misc-blk"><span class="misc-time">上午 06:30</span></th><td class="misc-cell" colspan="7">起床</td></tr><tr class="row-misc m-zaolian"><th class="blk misc-blk"><span class="misc-time">上午 06:40-06:50</span></th><td class="misc-cell" colspan="7">早炼</td></tr><tr class="row-misc m-meal"><th class="blk misc-blk"><span class="misc-time">上午 06:50-07:50</span></th><td class="misc-cell" colspan="7">早餐</td></tr><tr class="row-misc m-zaodu"><th class="blk misc-blk"><span class="misc-time">上午 07:50-08:00</span></th><td class="misc-cell" colspan="7">早读</td></tr><tr><th class="blk"><span class="blk-main">1-2 节</span><span class="blk-time">上午 08:20-09:50</span></th><td class="empty"></td><td><div class="course" style="--bg:#e8f0fe;--fg:#1967d2"><div class="cname">综合商务英语Ⅰ</div><div class="cmeta">谭雯婷</div><div class="cmeta">唯实楼401</div><div class="cmeta">2-15周(1-2节)</div></div></td><td><div class="course" style="--bg:#f3e8fd;--fg:#8430ce"><div class="cname">新闻英语视听说</div><div class="cmeta">欧阳含笑</div><div class="cmeta">厚德楼401</div><div class="cmeta">2-16周(1-2节)</div></div></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td></tr><tr><th class="blk"><span class="blk-main">3-4 节</span><span class="blk-time">上午 10:10-11:40</span></th><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td></tr><tr class="row-misc m-meal"><th class="blk misc-blk"><span class="misc-time">中午 11:40-12:50</span></th><td class="misc-cell" colspan="7">午餐</td></tr><tr class="row-misc m-life"><th class="blk misc-blk"><span class="misc-time">中午 12:50-13:40</span></th><td class="misc-cell" colspan="7">午休</td></tr><tr><th class="blk"><span class="blk-main">5-6 节</span><span class="blk-time">下午 13:50-15:20</span></th><td class="empty"></td><td><div class="course" style="--bg:#fef7e0;--fg:#b06000"><div class="cname">中国近现代史纲要</div><div class="cmeta">宋鹏飞</div><div class="cmeta">大讲堂203</div><div class="cmeta">2-15周(6-8节)</div></div></td><td><div class="course" style="--bg:#e0f7fa;--fg:#00695c"><div class="cname">英语国家社会与文化</div><div class="cmeta">Dima</div><div class="cmeta">唯实楼401</div><div class="cmeta">2-15周(5-6节)</div></div></td><td><div class="course" style="--bg:#e8eaf6;--fg:#3949ab"><div class="cname">英语语音实训</div><div class="cmeta">石俏杨</div><div class="cmeta">厚德楼416</div><div class="cmeta">9-15周(5-6节)</div></div></td><td class="empty"></td><td class="empty"></td><td class="empty"></td></tr><tr><th class="blk"><span class="blk-main">7-8 节</span><span class="blk-time">下午 15:40-17:10</span></th><td><div class="course" style="--bg:#e8f0fe;--fg:#1967d2"><div class="cname">综合商务英语Ⅰ</div><div class="cmeta">谭雯婷</div><div class="cmeta">唯实楼401</div><div class="cmeta">2-15周(7-8节)</div></div></td><td><div class="course" style="--bg:#fef7e0;--fg:#b06000"><div class="cname">中国近现代史纲要</div><div class="cmeta">宋鹏飞</div><div class="cmeta">大讲堂203</div><div class="cmeta">2-15周(6-8节)</div></div></td><td><div class="course" style="--bg:#fce4ec;--fg:#c2185b"><div class="cname">中华民族共同体概论</div><div class="cmeta">钟元泽</div><div class="cmeta">唯实楼218</div><div class="cmeta">1-8周(7-8节)</div></div></td><td class="empty"></td><td><div class="course" style="--bg:#e8f0fe;--fg:#1967d2"><div class="cname">体育I(板块)</div><div class="cmeta">未排地点</div><div class="cmeta">2-14周,17-18周(7-8节)</div></div></td><td class="empty"></td><td class="empty"></td></tr><tr class="row-misc m-meal"><th class="blk misc-blk"><span class="misc-time">晚上 17:10-18:30</span></th><td class="misc-cell" colspan="7">晚餐</td></tr><tr><th class="blk"><span class="blk-main">9-11 节</span><span class="blk-time">晚上 18:40-21:00</span></th><td><div class="course" style="--bg:#fce8e6;--fg:#c5221f"><div class="cname">形势与政策（1)上</div><div class="cmeta">王海岑</div><div class="cmeta">大讲堂203</div><div class="cmeta">3周(9-11节)</div></div></td><td><div class="course" style="--bg:#e6f4ea;--fg:#137333"><div class="cname">商务英语口语I</div><div class="cmeta">BATHAIIAN LUQMAN SADAT</div><div class="cmeta">求新楼624</div><div class="cmeta">2-15周(9-10节)</div></div></td><td><div class="course" style="--bg:#efebe9;--fg:#5d4037"><div class="cname">军事理论</div><div class="cmeta">赵炳林</div><div class="cmeta">唯实楼318</div><div class="cmeta">3周,6-10周(9-11节)</div></div></td><td><div class="course" style="--bg:#fff3e0;--fg:#e65100"><div class="cname">大学生心理健康教育</div><div class="cmeta">成本长</div><div class="cmeta">唯实楼218</div><div class="cmeta">4-14周(9-11节)</div></div></td><td class="empty"></td><td class="empty"></td><td class="empty"></td></tr><tr class="row-misc m-life"><th class="blk misc-blk"><span class="misc-time">晚上 23:00</span></th><td class="misc-cell" colspan="7">就寝</td></tr><tr class="row-misc m-life"><th class="blk misc-blk"><span class="misc-time">晚上 23:10</span></th><td class="misc-cell" colspan="7">熄灯</td></tr></tbody>
+      <thead><tr><th class="corner">节次</th><th>周一</th><th>周二</th><th>周三</th><th>周四</th><th>周五</th></tr></thead>
+      <tbody><tr class="row-misc m-life"><th class="blk misc-blk"><span class="misc-time">上午 06:30</span></th><td class="misc-cell" colspan="5">起床</td></tr><tr class="row-misc m-zaolian"><th class="blk misc-blk"><span class="misc-time">上午 06:40-06:50</span></th><td class="misc-cell" colspan="5">早炼</td></tr><tr class="row-misc m-meal"><th class="blk misc-blk"><span class="misc-time">上午 06:50-07:50</span></th><td class="misc-cell" colspan="5">早餐</td></tr><tr class="row-misc m-zaodu"><th class="blk misc-blk"><span class="misc-time">上午 07:50-08:00</span></th><td class="misc-cell" colspan="5">早读</td></tr><tr><th class="blk"><span class="blk-main">1-2 节</span><span class="blk-time">上午 08:20-09:50</span></th><td class="empty"></td><td><div class="course" style="--bg:#e8f0fe;--fg:#1967d2"><div class="cname">综合商务英语Ⅰ</div><div class="cmeta">谭雯婷</div><div class="cmeta">唯实楼401</div><div class="cmeta">2-15周(1-2节)</div></div></td><td><div class="course" style="--bg:#f3e8fd;--fg:#8430ce"><div class="cname">新闻英语视听说</div><div class="cmeta">欧阳含笑</div><div class="cmeta">厚德楼401</div><div class="cmeta">2-16周(1-2节)</div></div></td><td class="empty"></td><td class="empty"></td></tr><tr><th class="blk"><span class="blk-main">3-4 节</span><span class="blk-time">上午 10:10-11:40</span></th><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td><td class="empty"></td></tr><tr class="row-misc m-meal"><th class="blk misc-blk"><span class="misc-time">中午 11:40-12:50</span></th><td class="misc-cell" colspan="5">午餐</td></tr><tr class="row-misc m-life"><th class="blk misc-blk"><span class="misc-time">中午 12:50-13:40</span></th><td class="misc-cell" colspan="5">午休</td></tr><tr><th class="blk"><span class="blk-main">5-6 节</span><span class="blk-time">下午 13:50-15:20</span></th><td class="empty"></td><td><div class="course" style="--bg:#fef7e0;--fg:#b06000"><div class="cname">中国近现代史纲要</div><div class="cmeta">宋鹏飞</div><div class="cmeta">大讲堂203</div><div class="cmeta">2-15周(6-8节)</div></div></td><td><div class="course" style="--bg:#e0f7fa;--fg:#00695c"><div class="cname">英语国家社会与文化</div><div class="cmeta">Dima</div><div class="cmeta">唯实楼401</div><div class="cmeta">2-15周(5-6节)</div></div></td><td><div class="course" style="--bg:#e8eaf6;--fg:#3949ab"><div class="cname">英语语音实训</div><div class="cmeta">石俏杨</div><div class="cmeta">厚德楼416</div><div class="cmeta">9-15周(5-6节)</div></div></td><td class="empty"></td></tr><tr><th class="blk"><span class="blk-main">7-8 节</span><span class="blk-time">下午 15:40-17:10</span></th><td><div class="course" style="--bg:#e8f0fe;--fg:#1967d2"><div class="cname">综合商务英语Ⅰ</div><div class="cmeta">谭雯婷</div><div class="cmeta">唯实楼401</div><div class="cmeta">2-15周(7-8节)</div></div></td><td><div class="course" style="--bg:#fef7e0;--fg:#b06000"><div class="cname">中国近现代史纲要</div><div class="cmeta">宋鹏飞</div><div class="cmeta">大讲堂203</div><div class="cmeta">2-15周(6-8节)</div></div></td><td><div class="course" style="--bg:#fce4ec;--fg:#c2185b"><div class="cname">中华民族共同体概论</div><div class="cmeta">钟元泽</div><div class="cmeta">唯实楼218</div><div class="cmeta">1-8周(7-8节)</div></div></td><td class="empty"></td><td><div class="course" style="--bg:#e8f0fe;--fg:#1967d2"><div class="cname">体育I(板块)</div><div class="cmeta">未排地点</div><div class="cmeta">2-14周,17-18周(7-8节)</div></div></td></tr><tr class="row-misc m-meal"><th class="blk misc-blk"><span class="misc-time">晚上 17:10-18:30</span></th><td class="misc-cell" colspan="5">晚餐</td></tr><tr><th class="blk"><span class="blk-main">9-11 节</span><span class="blk-time">晚上 18:40-21:00</span></th><td><div class="course" style="--bg:#fce8e6;--fg:#c5221f"><div class="cname">形势与政策（1)上</div><div class="cmeta">王海岑</div><div class="cmeta">大讲堂203</div><div class="cmeta">3周(9-11节)</div></div></td><td><div class="course" style="--bg:#e6f4ea;--fg:#137333"><div class="cname">商务英语口语I</div><div class="cmeta">BATHAIIAN LUQMAN SADAT</div><div class="cmeta">求新楼624</div><div class="cmeta">2-15周(9-10节)</div></div></td><td><div class="course" style="--bg:#efebe9;--fg:#5d4037"><div class="cname">军事理论</div><div class="cmeta">赵炳林</div><div class="cmeta">唯实楼318</div><div class="cmeta">3周,6-10周(9-11节)</div></div></td><td><div class="course" style="--bg:#fff3e0;--fg:#e65100"><div class="cname">大学生心理健康教育</div><div class="cmeta">成本长</div><div class="cmeta">唯实楼218</div><div class="cmeta">4-14周(9-11节)</div></div></td><td class="empty"></td></tr><tr class="row-misc m-life"><th class="blk misc-blk"><span class="misc-time">晚上 23:00</span></th><td class="misc-cell" colspan="5">就寝</td></tr><tr class="row-misc m-life"><th class="blk misc-blk"><span class="misc-time">晚上 23:10</span></th><td class="misc-cell" colspan="5">熄灯</td></tr></tbody>
     </table>
   </div>
 
   <h2>课程图例</h2>
   <div class="card legend"><span class="lg"><i style="background:#e8f0fe;border-color:#1967d2"></i>综合商务英语Ⅰ</span><span class="lg"><i style="background:#fce8e6;border-color:#c5221f"></i>形势与政策（1)上</span><span class="lg"><i style="background:#fef7e0;border-color:#b06000"></i>中国近现代史纲要</span><span class="lg"><i style="background:#e6f4ea;border-color:#137333"></i>商务英语口语I</span><span class="lg"><i style="background:#f3e8fd;border-color:#8430ce"></i>新闻英语视听说</span><span class="lg"><i style="background:#e0f7fa;border-color:#00695c"></i>英语国家社会与文化</span><span class="lg"><i style="background:#fce4ec;border-color:#c2185b"></i>中华民族共同体概论</span><span class="lg"><i style="background:#efebe9;border-color:#5d4037"></i>军事理论</span><span class="lg"><i style="background:#e8eaf6;border-color:#3949ab"></i>英语语音实训</span><span class="lg"><i style="background:#fff3e0;border-color:#e65100"></i>大学生心理健康教育</span><span class="lg"><i style="background:#e8f0fe;border-color:#1967d2"></i>体育I(板块)</span></div>
 
-  <h2>课程清单</h2>
-  <div class="card">
+  <h2 class="h2-list">课程清单</h2>
+  <div class="card list-card">
     <table class="list">
       <thead><tr><th>课程名称</th><th>任课教师</th><th>上课地点</th><th>上课时间</th><th>周次</th><th>学分</th><th>考核方式</th></tr></thead>
       <tbody><tr><td class="cn"><span class="dot" style="background:#1967d2"></span>综合商务英语Ⅰ</td><td>谭雯婷</td><td>唯实楼401</td><td>周一 7-8节、周二 1-2节</td><td>2-15周(7-8节)</td><td>4.0</td><td>考试</td></tr><tr><td class="cn"><span class="dot" style="background:#c5221f"></span>形势与政策（1)上</td><td>王海岑</td><td>大讲堂203</td><td>周一 9-11节</td><td>3周(9-11节)</td><td>0.25</td><td>考查</td></tr><tr><td class="cn"><span class="dot" style="background:#b06000"></span>中国近现代史纲要</td><td>宋鹏飞</td><td>大讲堂203</td><td>周二 6-8节</td><td>2-15周(6-8节)</td><td>3.0</td><td>考试</td></tr><tr><td class="cn"><span class="dot" style="background:#137333"></span>商务英语口语I</td><td>BATHAIIAN LUQMAN SADAT</td><td>求新楼624</td><td>周二 9-10节</td><td>2-15周(9-10节)</td><td>2.0</td><td>考查</td></tr><tr><td class="cn"><span class="dot" style="background:#8430ce"></span>新闻英语视听说</td><td>欧阳含笑</td><td>厚德楼401</td><td>周三 1-2节</td><td>2-16周(1-2节)</td><td>2.0</td><td>考查</td></tr><tr><td class="cn"><span class="dot" style="background:#00695c"></span>英语国家社会与文化</td><td>Dima</td><td>唯实楼401</td><td>周三 5-6节</td><td>2-15周(5-6节)</td><td>2.0</td><td>考查</td></tr><tr><td class="cn"><span class="dot" style="background:#c2185b"></span>中华民族共同体概论</td><td>钟元泽</td><td>唯实楼218</td><td>周三 7-8节</td><td>1-8周(7-8节)</td><td>1.0</td><td>考查</td></tr><tr><td class="cn"><span class="dot" style="background:#5d4037"></span>军事理论</td><td>赵炳林</td><td>唯实楼318</td><td>周三 9-11节</td><td>3周,6-10周(9-11节)</td><td>2.0</td><td>考试</td></tr><tr><td class="cn"><span class="dot" style="background:#3949ab"></span>英语语音实训</td><td>石俏杨</td><td>厚德楼416</td><td>周四 5-6节</td><td>9-15周(5-6节)</td><td>1.0</td><td>考查</td></tr><tr><td class="cn"><span class="dot" style="background:#e65100"></span>大学生心理健康教育</td><td>成本长</td><td>唯实楼218</td><td>周四 9-11节</td><td>4-14周(9-11节)</td><td>2.0</td><td>考查</td></tr><tr><td class="cn"><span class="dot" style="background:#1967d2"></span>体育I(板块)</td><td>—</td><td>未排地点</td><td>周五 7-8节</td><td>2-14周,17-18周(7-8节)</td><td>—</td><td>未安排</td></tr></tbody>
     </table>
   </div>
 
-  <footer>数据来源：外国语学院 (2)(1).xls · 作息时间采用《广东技术师范大学河源校区作息时间表》（2023年12月6日起试运行）· 自动生成</footer>
+  <div class="m-list"><div class="m-item"><div class="m-item-hd"><i class="dot" style="background:#1967d2"></i>综合商务英语Ⅰ</div><div class="m-item-row"><span>任课教师</span><em>谭雯婷</em></div><div class="m-item-row"><span>上课地点</span><em>唯实楼401</em></div><div class="m-item-row"><span>上课时间</span><em>周一 7-8节、周二 1-2节</em></div><div class="m-item-row"><span>周次</span><em>2-15周(7-8节)</em></div><div class="m-item-row"><span>学分 / 考核</span><em>4.0 / 考试</em></div></div><div class="m-item"><div class="m-item-hd"><i class="dot" style="background:#c5221f"></i>形势与政策（1)上</div><div class="m-item-row"><span>任课教师</span><em>王海岑</em></div><div class="m-item-row"><span>上课地点</span><em>大讲堂203</em></div><div class="m-item-row"><span>上课时间</span><em>周一 9-11节</em></div><div class="m-item-row"><span>周次</span><em>3周(9-11节)</em></div><div class="m-item-row"><span>学分 / 考核</span><em>0.25 / 考查</em></div></div><div class="m-item"><div class="m-item-hd"><i class="dot" style="background:#b06000"></i>中国近现代史纲要</div><div class="m-item-row"><span>任课教师</span><em>宋鹏飞</em></div><div class="m-item-row"><span>上课地点</span><em>大讲堂203</em></div><div class="m-item-row"><span>上课时间</span><em>周二 6-8节</em></div><div class="m-item-row"><span>周次</span><em>2-15周(6-8节)</em></div><div class="m-item-row"><span>学分 / 考核</span><em>3.0 / 考试</em></div></div><div class="m-item"><div class="m-item-hd"><i class="dot" style="background:#137333"></i>商务英语口语I</div><div class="m-item-row"><span>任课教师</span><em>BATHAIIAN LUQMAN SADAT</em></div><div class="m-item-row"><span>上课地点</span><em>求新楼624</em></div><div class="m-item-row"><span>上课时间</span><em>周二 9-10节</em></div><div class="m-item-row"><span>周次</span><em>2-15周(9-10节)</em></div><div class="m-item-row"><span>学分 / 考核</span><em>2.0 / 考查</em></div></div><div class="m-item"><div class="m-item-hd"><i class="dot" style="background:#8430ce"></i>新闻英语视听说</div><div class="m-item-row"><span>任课教师</span><em>欧阳含笑</em></div><div class="m-item-row"><span>上课地点</span><em>厚德楼401</em></div><div class="m-item-row"><span>上课时间</span><em>周三 1-2节</em></div><div class="m-item-row"><span>周次</span><em>2-16周(1-2节)</em></div><div class="m-item-row"><span>学分 / 考核</span><em>2.0 / 考查</em></div></div><div class="m-item"><div class="m-item-hd"><i class="dot" style="background:#00695c"></i>英语国家社会与文化</div><div class="m-item-row"><span>任课教师</span><em>Dima</em></div><div class="m-item-row"><span>上课地点</span><em>唯实楼401</em></div><div class="m-item-row"><span>上课时间</span><em>周三 5-6节</em></div><div class="m-item-row"><span>周次</span><em>2-15周(5-6节)</em></div><div class="m-item-row"><span>学分 / 考核</span><em>2.0 / 考查</em></div></div><div class="m-item"><div class="m-item-hd"><i class="dot" style="background:#c2185b"></i>中华民族共同体概论</div><div class="m-item-row"><span>任课教师</span><em>钟元泽</em></div><div class="m-item-row"><span>上课地点</span><em>唯实楼218</em></div><div class="m-item-row"><span>上课时间</span><em>周三 7-8节</em></div><div class="m-item-row"><span>周次</span><em>1-8周(7-8节)</em></div><div class="m-item-row"><span>学分 / 考核</span><em>1.0 / 考查</em></div></div><div class="m-item"><div class="m-item-hd"><i class="dot" style="background:#5d4037"></i>军事理论</div><div class="m-item-row"><span>任课教师</span><em>赵炳林</em></div><div class="m-item-row"><span>上课地点</span><em>唯实楼318</em></div><div class="m-item-row"><span>上课时间</span><em>周三 9-11节</em></div><div class="m-item-row"><span>周次</span><em>3周,6-10周(9-11节)</em></div><div class="m-item-row"><span>学分 / 考核</span><em>2.0 / 考试</em></div></div><div class="m-item"><div class="m-item-hd"><i class="dot" style="background:#3949ab"></i>英语语音实训</div><div class="m-item-row"><span>任课教师</span><em>石俏杨</em></div><div class="m-item-row"><span>上课地点</span><em>厚德楼416</em></div><div class="m-item-row"><span>上课时间</span><em>周四 5-6节</em></div><div class="m-item-row"><span>周次</span><em>9-15周(5-6节)</em></div><div class="m-item-row"><span>学分 / 考核</span><em>1.0 / 考查</em></div></div><div class="m-item"><div class="m-item-hd"><i class="dot" style="background:#e65100"></i>大学生心理健康教育</div><div class="m-item-row"><span>任课教师</span><em>成本长</em></div><div class="m-item-row"><span>上课地点</span><em>唯实楼218</em></div><div class="m-item-row"><span>上课时间</span><em>周四 9-11节</em></div><div class="m-item-row"><span>周次</span><em>4-14周(9-11节)</em></div><div class="m-item-row"><span>学分 / 考核</span><em>2.0 / 考查</em></div></div><div class="m-item"><div class="m-item-hd"><i class="dot" style="background:#1967d2"></i>体育I(板块)</div><div class="m-item-row"><span>任课教师</span><em>—</em></div><div class="m-item-row"><span>上课地点</span><em>未排地点</em></div><div class="m-item-row"><span>上课时间</span><em>周五 7-8节</em></div><div class="m-item-row"><span>周次</span><em>2-14周,17-18周(7-8节)</em></div><div class="m-item-row"><span>学分 / 考核</span><em>— / 未安排</em></div></div></div>
+
+  <div class="mode-bar">
+    <span>当前版面：</span>
+    <button type="button" class="mode-switch" data-mode="mobile">手机</button>
+    <button type="button" class="mode-switch" data-mode="desktop">电脑</button>
+  </div>
+
+  <footer>数据来源：外国语学院 (2)(1).xls · 作息时间采用《广东技术师范大学河源校区作息时间表》（2023年12月6日起试运行）· 天气：中国气象局（河源站）+ Open-Meteo · 自动生成</footer>
 </div>
 <script>
 /* ===== 显示选项：分组开关 + 一键全开/全关 ===== */
@@ -266,16 +433,24 @@
   setInterval(tick, 1000);
 })();
 
-/* ===== 河源校区天气 + 带伞提醒 ===== */
+/* ===== 河源校区天气 + 带伞提醒 =====
+   数据来源（两个都免密钥、都允许跨域）：
+     1) 中国气象局 · 中央气象台（河源站 Fkjlf）—— 官方实况 + 今日预报（主源）
+     2) Open-Meteo（ECMWF IFS 模式）—— 逐小时分时预报（辅源）
+   只展示「今天」：不再展示明天/后天的每日预报。
+   国外模式的「每日天气代码」会把当天最极端的代码抬出来（曾把普通雷阵雨
+   报成 96「雷阵雨伴冰雹」），因此不再使用每日代码。 */
 (function () {
-  var SNAP = {"latitude":23.725834,"longitude":114.70961,"generationtime_ms":0.34809112548828125,"utc_offset_seconds":28800,"timezone":"Asia/Shanghai","timezone_abbreviation":"GMT+8","elevation":34.0,"current_units":{"time":"iso8601","interval":"seconds","temperature_2m":"°C","apparent_temperature":"°C","relative_humidity_2m":"%","weather_code":"wmo code","wind_speed_10m":"km/h"},"current":{"time":"2026-09-14T08:00","interval":900,"temperature_2m":26.0,"apparent_temperature":31.0,"relative_humidity_2m":87,"weather_code":0,"wind_speed_10m":5.8},"hourly_units":{"time":"iso8601","temperature_2m":"°C","precipitation_probability":"%","precipitation":"mm","weather_code":"wmo code"},"hourly":{"time":["2026-09-14T00:00","2026-09-14T01:00","2026-09-14T02:00","2026-09-14T03:00","2026-09-14T04:00","2026-09-14T05:00","2026-09-14T06:00","2026-09-14T07:00","2026-09-14T08:00","2026-09-14T09:00","2026-09-14T10:00","2026-09-14T11:00","2026-09-14T12:00","2026-09-14T13:00","2026-09-14T14:00","2026-09-14T15:00","2026-09-14T16:00","2026-09-14T17:00","2026-09-14T18:00","2026-09-14T19:00","2026-09-14T20:00","2026-09-14T21:00","2026-09-14T22:00","2026-09-14T23:00","2026-09-15T00:00","2026-09-15T01:00","2026-09-15T02:00","2026-09-15T03:00","2026-09-15T04:00","2026-09-15T05:00","2026-09-15T06:00","2026-09-15T07:00","2026-09-15T08:00","2026-09-15T09:00","2026-09-15T10:00","2026-09-15T11:00","2026-09-15T12:00","2026-09-15T13:00","2026-09-15T14:00","2026-09-15T15:00","2026-09-15T16:00","2026-09-15T17:00","2026-09-15T18:00","2026-09-15T19:00","2026-09-15T20:00","2026-09-15T21:00","2026-09-15T22:00","2026-09-15T23:00","2026-09-16T00:00","2026-09-16T01:00","2026-09-16T02:00","2026-09-16T03:00","2026-09-16T04:00","2026-09-16T05:00","2026-09-16T06:00","2026-09-16T07:00","2026-09-16T08:00","2026-09-16T09:00","2026-09-16T10:00","2026-09-16T11:00","2026-09-16T12:00","2026-09-16T13:00","2026-09-16T14:00","2026-09-16T15:00","2026-09-16T16:00","2026-09-16T17:00","2026-09-16T18:00","2026-09-16T19:00","2026-09-16T20:00","2026-09-16T21:00","2026-09-16T22:00","2026-09-16T23:00"],"temperature_2m":[24.9,24.7,24.7,24.5,24.3,24.4,24.3,24.9,26.0,27.8,29.4,30.8,31.4,31.8,32.3,31.9,30.4,27.4,27.2,26.8,25.9,25.6,25.3,25.2,24.9,24.7,24.5,24.2,24.1,24.1,24.0,24.4,25.4,27.1,28.8,30.0,30.9,31.8,28.7,28.8,28.4,27.4,26.6,26.3,25.9,25.5,25.2,24.2,24.1,24.0,23.9,23.8,23.7,23.8,23.9,24.3,25.1,26.6,28.1,29.4,30.2,30.6,29.6,29.9,30.1,29.7,28.0,27.3,26.5,26.2,25.9,25.6],"precipitation_probability":[45,29,16,9,5,2,0,0,0,0,0,2,19,42,61,72,80,84,84,81,78,78,77,71,53,29,12,7,9,10,8,7,8,13,20,29,40,53,65,79,93,100,96,86,76,70,65,59,49,38,29,26,25,24,18,12,10,17,29,41,53,64,73,78,80,78,70,58,45,31,16,6],"precipitation":[0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.1,0.2,0.1,0.0,0.1,0.1,2.4,0.2,0.0,0.5,1.0,0.5,0.1,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.1,0.0,0.0,1.2,0.4,0.3,0.2,0.1,0.1,0.0,0.0,0.0,1.1,0.2,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.1,0.1,0.1,1.3,0.3,0.0,0.0,0.0,0.0,0.0,0.0,0.0,0.0],"weather_code":[3,3,3,1,1,2,1,2,0,1,2,51,51,51,3,51,51,80,51,1,53,55,53,51,1,1,2,1,1,1,0,0,0,0,1,51,1,2,95,51,51,51,51,51,1,0,1,55,51,1,0,3,3,3,3,1,1,1,1,51,51,51,80,51,2,2,3,3,3,3,3,3]},"daily_units":{"time":"iso8601","weather_code":"wmo code","temperature_2m_max":"°C","temperature_2m_min":"°C","precipitation_probability_max":"%","precipitation_sum":"mm"},"daily":{"time":["2026-09-14","2026-09-15","2026-09-16"],"weather_code":[80,95,80],"temperature_2m_max":[32.3,31.8,30.6],"temperature_2m_min":[24.3,24.0,23.7],"precipitation_probability_max":[84,100,80],"precipitation_sum":[5.3,3.5,2.1]},"generated_at":"2026-09-14 08:08"};
+  var SNAP = {"generated_at":"2026-09-14 15:10","nmc":{"real":{"station":{"code":"Fkjlf","province":"广东省","city":"河源","url":"/publish/forecast/AGD/heyuan.html"},"publish_time":"2026-09-14 14:40","weather":{"temperature":32.2,"temperatureDiff":1.8,"airpressure":9999.0,"humidity":64.0,"rain":0.0,"rcomfort":77,"icomfort":2,"info":"多云","img":"1","feelst":35.7},"wind":{"direct":"东北风","degree":40.0,"power":"3级","speed":3.4},"warn":{"alert":"2026年09月14日14时广东省河源市气象台发布雷雨大风黄色预警信号","pic":"https://image.nmc.cn/assets/img/alarm/p0015003.png","province":"广东省","city":"河源市","url":"/publish/alarm/44160041600000_20260914144551.html","issuecontent":"【河源雷雨大风黄色预警信号】受不断西移南压的对流云团影响，预计未来3小时，本地雷雨明显，局地伴有雷电、短时大风、短时强降水等强对流天气，河源市气象台于2026年9月14日14时44分发布源城区、江东新区雷雨大风黄色预警信号，请注意防御。","issuetime":"","fmeans":"1、妥善保管易受雷击的贵重电器设备，断电后放到安全的地方；2、危险地带和危房居民，以及船舶应到避风场所避风，千万不要在树下、电杆下、塔吊下避雨，出现雷电时应当关闭手机；3、切断霓虹灯招牌及危险的室外电源；4、停止露天集体活动，立即疏散人员；5、高空、水上等户外作业人员停止作业，危险地带人员撤离；其它同雷雨大风蓝色预警信号。","signaltype":"雷雨大风","signallevel":"黄色","pic2":"p0015003.png"},"sunriseSunset":{"sunrise":"2026-09-14 06:06","sunset":"2026-09-14 18:26"}},"predict":{"station":{"code":"Fkjlf","province":"广东省","city":"河源","url":"/publish/forecast/AGD/heyuan.html"},"publish_time":"2026-09-14 12:00","detail":[{"date":"2026-09-14","pt":"2026-09-14 12:00","day":{"weather":{"info":"雷阵雨","img":"4","temperature":"32"},"wind":{"direct":"无持续风向","power":"微风"}},"night":{"weather":{"info":"雷阵雨","img":"4","temperature":"24"},"wind":{"direct":"无持续风向","power":"微风"}},"precipitation":18.1},{"date":"2026-09-15","pt":"2026-09-14 12:00","day":{"weather":{"info":"雷阵雨","img":"4","temperature":"32"},"wind":{"direct":"无持续风向","power":"微风"}},"night":{"weather":{"info":"雷阵雨","img":"4","temperature":"24"},"wind":{"direct":"无持续风向","power":"微风"}},"precipitation":10.7},{"date":"2026-09-16","pt":"2026-09-14 12:00","day":{"weather":{"info":"雷阵雨","img":"4","temperature":"32"},"wind":{"direct":"无持续风向","power":"微风"}},"night":{"weather":{"info":"多云","img":"1","temperature":"24"},"wind":{"direct":"无持续风向","power":"微风"}},"precipitation":0.2},{"date":"2026-09-17","pt":"2026-09-14 12:00","day":{"weather":{"info":"多云","img":"1","temperature":"33"},"wind":{"direct":"无持续风向","power":"微风"}},"night":{"weather":{"info":"多云","img":"1","temperature":"24"},"wind":{"direct":"无持续风向","power":"微风"}},"precipitation":0.0},{"date":"2026-09-18","pt":"2026-09-14 12:00","day":{"weather":{"info":"多云","img":"1","temperature":"34"},"wind":{"direct":"无持续风向","power":"微风"}},"night":{"weather":{"info":"多云","img":"1","temperature":"24"},"wind":{"direct":"无持续风向","power":"微风"}},"precipitation":0.0},{"date":"2026-09-19","pt":"2026-09-14 12:00","day":{"weather":{"info":"多云","img":"1","temperature":"34"},"wind":{"direct":"无持续风向","power":"微风"}},"night":{"weather":{"info":"多云","img":"1","temperature":"24"},"wind":{"direct":"无持续风向","power":"微风"}},"precipitation":0.0},{"date":"2026-09-20","pt":"2026-09-14 12:00","day":{"weather":{"info":"多云","img":"1","temperature":"34"},"wind":{"direct":"无持续风向","power":"微风"}},"night":{"weather":{"info":"多云","img":"1","temperature":"24"},"wind":{"direct":"无持续风向","power":"微风"}},"precipitation":0.0}]},"air":{"forecasttime":"","aqi":9999,"aq":9999,"text":"-","aqiCode":"9999"},"tempchart":[{"time":"2026/09/07","max_temp":34.4,"min_temp":24.4,"day_img":"9999","day_text":"9999","night_img":"9999","night_text":"9999"},{"time":"2026/09/08","max_temp":34.1,"min_temp":21.9,"day_img":"9999","day_text":"9999","night_img":"9999","night_text":"9999"},{"time":"2026/09/09","max_temp":32.6,"min_temp":21.5,"day_img":"9999","day_text":"9999","night_img":"9999","night_text":"9999"},{"time":"2026/09/10","max_temp":30.3,"min_temp":22.3,"day_img":"9999","day_text":"9999","night_img":"9999","night_text":"9999"},{"time":"2026/09/11","max_temp":31.0,"min_temp":21.0,"day_img":"9999","day_text":"9999","night_img":"9999","night_text":"9999"},{"time":"2026/09/12","max_temp":31.2,"min_temp":22.7,"day_img":"9999","day_text":"9999","night_img":"9999","night_text":"9999"},{"time":"2026/09/13","max_temp":32.1,"min_temp":24.5,"day_img":"9999","day_text":"9999","night_img":"9999","night_text":"9999"},{"time":"2026/09/14","max_temp":32.5,"min_temp":24.5,"day_img":"4","day_text":"雷阵雨","night_img":"4","night_text":"雷阵雨"},{"time":"2026/09/15","max_temp":32.4,"min_temp":24.1,"day_img":"4","day_text":"雷阵雨","night_img":"4","night_text":"雷阵雨"},{"time":"2026/09/16","max_temp":32.5,"min_temp":24.2,"day_img":"4","day_text":"雷阵雨","night_img":"1","night_text":"多云"},{"time":"2026/09/17","max_temp":33.4,"min_temp":24.4,"day_img":"1","day_text":"多云","night_img":"1","night_text":"多云"},{"time":"2026/09/18","max_temp":34.1,"min_temp":24.7,"day_img":"1","day_text":"多云","night_img":"1","night_text":"多云"},{"time":"2026/09/19","max_temp":34.8,"min_temp":24.9,"day_img":"1","day_text":"多云","night_img":"1","night_text":"多云"},{"time":"2026/09/20","max_temp":34.6,"min_temp":24.9,"day_img":"1","day_text":"多云","night_img":"1","night_text":"多云"}],"passedchart":[{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":33.0,"tempDiff":"","humidity":59.0,"pressure":999.0,"windDirection":46.0,"windSpeed":7.2,"time":"2026-09-14 14:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":32.8,"tempDiff":"","humidity":60.0,"pressure":1000.0,"windDirection":1.0,"windSpeed":2.5,"time":"2026-09-14 13:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":31.1,"tempDiff":"","humidity":67.0,"pressure":1002.0,"windDirection":16.0,"windSpeed":4.1,"time":"2026-09-14 12:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":30.2,"tempDiff":"","humidity":67.0,"pressure":1002.0,"windDirection":357.0,"windSpeed":4.4,"time":"2026-09-14 11:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":30.1,"tempDiff":"","humidity":70.0,"pressure":1002.0,"windDirection":348.0,"windSpeed":4.6,"time":"2026-09-14 10:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":28.5,"tempDiff":"","humidity":82.0,"pressure":1002.0,"windDirection":60.0,"windSpeed":1.6,"time":"2026-09-14 09:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":27.3,"tempDiff":"","humidity":85.0,"pressure":1002.0,"windDirection":360.0,"windSpeed":1.6,"time":"2026-09-14 08:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":24.2,"tempDiff":"","humidity":95.0,"pressure":1002.0,"windDirection":130.0,"windSpeed":2.7,"time":"2026-09-14 07:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":24.1,"tempDiff":"","humidity":95.0,"pressure":1001.0,"windDirection":125.0,"windSpeed":2.6,"time":"2026-09-14 06:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":24.2,"tempDiff":"","humidity":95.0,"pressure":1001.0,"windDirection":131.0,"windSpeed":3.2,"time":"2026-09-14 05:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":24.5,"tempDiff":"","humidity":94.0,"pressure":1001.0,"windDirection":126.0,"windSpeed":2.6,"time":"2026-09-14 04:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":24.8,"tempDiff":"","humidity":94.0,"pressure":1002.0,"windDirection":138.0,"windSpeed":1.7,"time":"2026-09-14 03:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":25.3,"tempDiff":"","humidity":91.0,"pressure":1002.0,"windDirection":167.0,"windSpeed":1.0,"time":"2026-09-14 02:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":25.3,"tempDiff":"","humidity":91.0,"pressure":1002.0,"windDirection":129.0,"windSpeed":2.7,"time":"2026-09-14 01:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":25.9,"tempDiff":"","humidity":86.0,"pressure":1003.0,"windDirection":125.0,"windSpeed":0.9,"time":"2026-09-14 00:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":25.4,"tempDiff":"","humidity":87.0,"pressure":1003.0,"windDirection":119.0,"windSpeed":2.5,"time":"2026-09-13 23:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":25.4,"tempDiff":"","humidity":89.0,"pressure":1003.0,"windDirection":133.0,"windSpeed":2.8,"time":"2026-09-13 22:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":26.1,"tempDiff":"","humidity":87.0,"pressure":1003.0,"windDirection":129.0,"windSpeed":2.4,"time":"2026-09-13 21:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":26.9,"tempDiff":"","humidity":84.0,"pressure":1001.0,"windDirection":146.0,"windSpeed":2.2,"time":"2026-09-13 20:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":27.8,"tempDiff":"","humidity":80.0,"pressure":1001.0,"windDirection":118.0,"windSpeed":2.0,"time":"2026-09-13 19:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":28.8,"tempDiff":"","humidity":74.0,"pressure":1000.0,"windDirection":51.0,"windSpeed":2.7,"time":"2026-09-13 18:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":29.5,"tempDiff":"","humidity":72.0,"pressure":1000.0,"windDirection":33.0,"windSpeed":2.4,"time":"2026-09-13 17:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":30.1,"tempDiff":"","humidity":68.0,"pressure":1000.0,"windDirection":56.0,"windSpeed":3.4,"time":"2026-09-13 16:00"},{"rain1h":0.0,"rain24h":9999.0,"rain12h":9999.0,"rain6h":9999.0,"temperature":30.4,"tempDiff":"","humidity":66.0,"pressure":1000.0,"windDirection":48.0,"windSpeed":3.2,"time":"2026-09-13 15:00"}],"climate":{"time":"1981年-2010年","month":[{"month":1,"maxTemp":18.4,"minTemp":9.6,"precipitation":51.2},{"month":2,"maxTemp":18.9,"minTemp":11.2,"precipitation":96.0},{"month":3,"maxTemp":21.7,"minTemp":14.3,"precipitation":160.3},{"month":4,"maxTemp":26.0,"minTemp":19.1,"precipitation":230.8},{"month":5,"maxTemp":29.7,"minTemp":22.4,"precipitation":290.0},{"month":6,"maxTemp":31.6,"minTemp":24.5,"precipitation":351.3},{"month":7,"maxTemp":33.4,"minTemp":25.2,"precipitation":221.5},{"month":8,"maxTemp":33.3,"minTemp":25.2,"precipitation":248.4},{"month":9,"maxTemp":31.8,"minTemp":23.7,"precipitation":160.2},{"month":10,"maxTemp":29.2,"minTemp":20.2,"precipitation":41.8},{"month":11,"maxTemp":25.0,"minTemp":15.6,"precipitation":38.8},{"month":12,"maxTemp":20.3,"minTemp":10.8,"precipitation":37.5}]},"radar":{"title":"河源","image":"/product/2026/09/14/RDCP/SEVP_AOC_RDCP_SLDAS3_ECREF_AZ9762_L88_PI_20260914065400000.PNG?v=1789369730097","url":"/publish/radar/guang-dong/he-yuan.htm"}}};
   var TZ = 'Asia/Shanghai';
+
+  /* 主源：中国气象局河源站（官方） */
+  var NMC = 'https://www.nmc.cn/rest/weather?stationid=Fkjlf';
+  /* 辅源：Open-Meteo ECMWF 逐小时；current 仅作官方实况缺失时的兜底 */
   var API = 'https://api.open-meteo.com/v1/forecast?latitude=23.7333&longitude=114.6833'
     + '&current=temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m'
     + '&hourly=temperature_2m,precipitation_probability,precipitation,weather_code'
-    + '&daily=weather_code,temperature_2m_max,temperature_2m_min,'
-    + 'precipitation_probability_max,precipitation_sum'
-    + '&timezone=Asia%2FShanghai&forecast_days=3';
+    + '&timezone=Asia%2FShanghai&forecast_days=2&models=ecmwf_ifs025';
 
   var WMO = { 0: ['晴', '☀️'], 1: ['大部晴朗', '🌤️'], 2: ['局部多云', '⛅'], 3: ['阴', '☁️'],
     45: ['有雾', '🌫️'], 48: ['雾凇', '🌫️'],
@@ -289,86 +464,238 @@
     95: ['雷阵雨', '⛈️'], 96: ['雷阵雨伴冰雹', '⛈️'], 99: ['强雷暴伴冰雹', '⛈️'] };
   function wmo(c) { return WMO[c] || ['未知', '🌡️']; }
 
+  /* 官方文字天气 → 图标：按文字匹配，比维护数字代码更稳 */
+  function nmcIcon(info) {
+    var s = info || '';
+    if (s.indexOf('雹') >= 0 || s.indexOf('雷') >= 0) { return '⛈️'; }
+    if (s.indexOf('雪') >= 0) { return '🌨️'; }
+    if (s.indexOf('大雨') >= 0 || s.indexOf('暴雨') >= 0) { return '🌧️'; }
+    if (s.indexOf('雨') >= 0) { return '🌦️'; }
+    if (s.indexOf('雾') >= 0 || s.indexOf('霾') >= 0) { return '🌫️'; }
+    if (s.indexOf('阴') >= 0) { return '☁️'; }
+    if (s.indexOf('多云') >= 0 || s.indexOf('少云') >= 0) { return '⛅'; }
+    if (s.indexOf('晴') >= 0) { return '☀️'; }
+    return '🌡️';
+  }
+  function wetText(info, mm) { return /雨|雷|雪|雹/.test(info || '') || (mm || 0) >= 0.1; }
+
   var elBody = document.getElementById('wx-body'), elLoad = document.getElementById('wx-loading');
-  var elErr = document.getElementById('wx-error'), elUpd = document.getElementById('wx-updated');
+  var elErr = document.getElementById('wx-error'), elUpd = document.getElementById('wx-updated'), elBtn = document.getElementById('wx-refresh');
+  var elSrc = document.getElementById('wx-src');
   function show(el, on) { el.classList.toggle('is-hidden', !on); }
   function r0(v) { return Math.round(v); }
+  /* Open-Meteo 的空值 */
+  function num(v) { return (typeof v === 'number' && isFinite(v)) ? v : null; }
+  /* 中国气象局的空值是 9999 */
+  function g(v) {
+    return (typeof v === 'number' && isFinite(v) && Math.abs(v) < 9000) ? v : null;
+  }
+  function txt(v) { return (typeof v === 'string' && v && v !== '9999') ? v : ''; }
+  /* 观测时间距现在多少分钟（按北京时间解析，与本机时区无关） */
+  function lagMin(s) {
+    if (!s || s.length < 16) { return null; }
+    var t = Date.parse(s.slice(0, 16).replace(' ', 'T') + ':00+08:00');
+    return isNaN(t) ? null : Math.round((Date.now() - t) / 60000);
+  }
+  function lagText(m) {
+    if (m < 1) { return '刚刚更新'; }
+    if (m < 60) { return m + ' 分钟前'; }
+    return Math.floor(m / 60) + ' 小时前';
+  }
+  var okTimer = null;
+  function setUpd(s, cls) {
+    if (!elUpd) { return; }
+    elUpd.textContent = s;
+    elUpd.className = 'wx-updated' + (cls ? ' is-' + cls : '');
+  }
+  /* 刷新成功后按钮短暂变绿 */
+  function flashOk() {
+    if (!elBtn) { return; }
+    elBtn.classList.add('is-ok');
+    if (okTimer) { clearTimeout(okTimer); }
+    okTimer = setTimeout(function () { elBtn.classList.remove('is-ok'); }, 1500);
+  }
+
+  var om = null, nmc = null;
   var hasData = false, retry = 0, rtTimer = null, lastOk = Date.now();
-  var RETRY_DELAYS = [2000, 5000, 10000, 20000];   /* 打开页面拉取失败时的自动重试间隔(ms) */
+  var RETRY_DELAYS = [2000, 5000, 10000, 20000];   /* 拉取失败时的自动重试间隔(ms) */
 
-  function render(d, stale) {
+  /* 分时窗口：6 / 12 / 24 小时，选择后记住 */
+  var SPANS = [6, 12, 24];
+  var span = 12;
+  try {
+    var sv = parseInt(localStorage.getItem('dw_wx_span'), 10);
+    if (SPANS.indexOf(sv) >= 0) { span = sv; }
+  } catch (e) {}
+
+  function hourlyTime() { return (om && om.hourly && om.hourly.time) || []; }
+  function refHour() {
+    if (om && om.current && om.current.time) { return new Date(om.current.time); }
+    var t = hourlyTime();
+    return t.length ? new Date(t[0]) : new Date();
+  }
+  /* 窗口起点：从「当前整点前一档」开始 */
+  function windowStart() {
+    var ref = refHour(), t = hourlyTime(), i;
+    for (i = 0; i < t.length; i++) {
+      if (new Date(t[i]).getTime() >= ref.getTime() - 1800000) { return i; }
+    }
+    var key = ((om && om.current && om.current.time) || t[0] || '').slice(0, 10);
+    var hs = new Date().getHours();
+    for (i = 0; i < t.length; i++) {
+      if (t[i].slice(0, 10) === key && parseInt(t[i].slice(11, 13), 10) === hs) { return i; }
+    }
+    return 0;
+  }
+  function winStats() {
+    var h = (om && om.hourly) || {}, t = h.time || [];
+    var start = windowStart(), end = Math.min(start + span, t.length);
+    var pop = [], rain = [], i;
+    for (i = start; i < end; i++) {
+      pop.push(num(h.precipitation_probability[i]) == null ? 0 : h.precipitation_probability[i]);
+      rain.push(num(h.precipitation[i]) == null ? 0 : h.precipitation[i]);
+    }
+    return { start: start, end: end,
+      maxPop: pop.length ? Math.max.apply(null, pop) : 0,
+      sumRain: rain.reduce(function (a, b) { return a + b; }, 0) };
+  }
+  /* 中国气象局：今天的白天/夜间预报（只取今天） */
+  function nmcToday() {
+    var d = nmc && nmc.predict && nmc.predict.detail;
+    return (d && d.length) ? d[0] : null;
+  }
+
+  function renderHourly() {
+    var box = document.getElementById('wx-hourly');
+    if (!box) { return; }
+    var h = (om && om.hourly) || {}, t = h.time || [];
+    if (!t.length) { box.innerHTML = ''; return; }
+    var key = ((om.current && om.current.time) || t[0]).slice(0, 10);
+    var st = winStats();
+    var rows = ['<div class="wx-sub">未来 ' + span + ' 小时（逐小时）</div>'];
+    for (var i = st.start; i < st.end; i++) {
+      var hc = wmo(num(h.weather_code[i]));
+      var lbl = (t[i].slice(0, 10) !== key ? '次日 ' : '') + t[i].slice(11, 16);
+      var p = num(h.precipitation_probability[i]);
+      rows.push('<div class="wx-hrow"><span>' + lbl + '</span><span>' + hc[1]
+        + '</span><span>' + r0(h.temperature_2m[i]) + '°</span><span>'
+        + (p == null ? '—' : r0(p) + '%') + '</span></div>');
+    }
+    box.innerHTML = rows.join('');
+  }
+
+  function renderSeg() {
+    [].forEach.call(document.querySelectorAll('.wx-seg-b'), function (b) {
+      b.classList.toggle('is-on', parseInt(b.getAttribute('data-span'), 10) === span);
+    });
+  }
+
+  function render(stale) {
     try {
-      var cur = d.current || {}, h = d.hourly || {}, dy = d.daily || {};
-      var ic = wmo(cur.weather_code);
-      document.getElementById('wx-ico').textContent = ic[1];
-      document.getElementById('wx-temp').textContent = r0(cur.temperature_2m) + '°';
-      document.getElementById('wx-desc').textContent = ic[0];
-      document.getElementById('wx-meta').innerHTML =
-        '体感 ' + r0(cur.apparent_temperature) + '° · 湿度 ' + r0(cur.relative_humidity_2m) + '%'
-        + '<br>风速 ' + (Math.round(cur.wind_speed_10m * 10) / 10) + ' km/h';
+      var cur = (om && om.current) || {};
+      var real = (nmc && nmc.real) || null;
+      var w = (real && real.weather) || null;
+      var wInfo = txt(w && w.info), wTemp = g(w && w.temperature);
+      var td = nmcToday();
 
-      var ref = cur.time ? new Date(cur.time) : new Date();
-      var span = ref.getHours() >= 17 ? 24 : 12;
-      var start = 0, i;
-      for (i = 0; i < h.time.length; i++) {
-        if (new Date(h.time[i]).getTime() >= ref.getTime() - 1800000) { start = i; break; }
-      }
-      var pop = [], rain = [];
-      for (i = start; i < Math.min(start + span, h.time.length); i++) {
-        pop.push(h.precipitation_probability[i] == null ? 0 : h.precipitation_probability[i]);
-        rain.push(h.precipitation[i] == null ? 0 : h.precipitation[i]);
-      }
-      var maxPop = pop.length ? Math.max.apply(null, pop) : 0;
-      var sumRain = rain.reduce(function (a, b) { return a + b; }, 0);
-
-      var tip, cls, sub;
-      if (maxPop >= 50 || sumRain >= 1) {
-        cls = 'lv2'; tip = '☂️ 记得带伞';
-        sub = '未来 ' + span + ' 小时最高降雨概率 ' + r0(maxPop) + '%，累计约 '
-            + (Math.round(sumRain * 10) / 10) + ' mm。';
-      } else if (maxPop >= 30 || sumRain >= 0.2) {
-        cls = 'lv1'; tip = '🌂 建议备把伞';
-        sub = '未来 ' + span + ' 小时最高降雨概率 ' + r0(maxPop) + '%，可能有零星降雨。';
+      /* —— 顶部：优先官方实况观测，缺失时回退 Open-Meteo —— */
+      var icon, desc, temp, meta = [];
+      if (wInfo && wTemp != null) {
+        icon = nmcIcon(wInfo);
+        desc = wInfo;
+        temp = r0(wTemp);
+        var fl = g(w.feelst);
+        meta.push('体感 ' + r0(fl == null ? wTemp : fl) + '°');
+        var hu = g(w.humidity);
+        if (hu != null) { meta.push('湿度 ' + r0(hu) + '%'); }
       } else {
-        cls = 'lv0'; tip = '✅ 不用带伞';
-        sub = '未来 ' + span + ' 小时最高降雨概率仅 ' + r0(maxPop) + '%，基本无雨。';
+        var ic = wmo(num(cur.weather_code));
+        icon = ic[1];
+        desc = ic[0];
+        temp = num(cur.temperature_2m) == null ? '--' : r0(cur.temperature_2m);
+        if (num(cur.apparent_temperature) != null) { meta.push('体感 ' + r0(cur.apparent_temperature) + '°'); }
+        if (num(cur.relative_humidity_2m) != null) { meta.push('湿度 ' + r0(cur.relative_humidity_2m) + '%'); }
+        if (num(cur.wind_speed_10m) != null) {
+          meta.push('风速 ' + (Math.round(cur.wind_speed_10m * 10) / 10) + ' km/h');
+        }
+      }
+      if (real && real.wind && txt(real.wind.power)) { meta.push('风力 ' + txt(real.wind.power)); }
+      document.getElementById('wx-ico').textContent = icon;
+      document.getElementById('wx-temp').textContent = temp + '°';
+      document.getElementById('wx-desc').textContent = desc;
+      document.getElementById('wx-meta').innerHTML = meta.join(' · ');
+
+      /* —— 今天（只显示今天，不显示明天） —— */
+      var elT = document.getElementById('wx-today');
+      var dInfo = '', nInfo = '';
+      if (td) {
+        var dw = (td.day && td.day.weather) || {}, nw = (td.night && td.night.weather) || {};
+        dInfo = txt(dw.info); nInfo = txt(nw.info);
+        var ps = [];
+        if (dInfo) { ps.push('白天 ' + nmcIcon(dInfo) + dInfo + ' ' + (txt(dw.temperature) || '—') + '°'); }
+        if (nInfo) { ps.push('夜间 ' + nmcIcon(nInfo) + nInfo + ' ' + (txt(nw.temperature) || '—') + '°'); }
+        if (ps.length) {
+          var line = '<b>今天</b> ' + ps.join('，');
+          var pr = g(td.precipitation);
+          if (pr != null && pr > 0) { line += '，预计降水 ' + (Math.round(pr * 10) / 10) + ' mm'; }
+          elT.innerHTML = line;
+          elT.classList.remove('is-hidden');
+        } else { elT.classList.add('is-hidden'); }
+      } else { elT.classList.add('is-hidden'); }
+
+      /* —— 带伞提醒：官方今日有雨 或 分时窗口有雨，取更保守的一档 —— */
+      var st = winStats();
+      var maxPop = r0(st.maxPop), sumRain = Math.round(st.sumRain * 10) / 10;
+      var offWet = td ? wetText(dInfo + nInfo, g(td.precipitation)) : false;
+      var lv;
+      if (offWet || maxPop >= 50 || sumRain >= 1) { lv = 2; }
+      else if (maxPop >= 30 || sumRain >= 0.2) { lv = 1; }
+      else { lv = 0; }
+
+      var sub;
+      if (lv === 2) {
+        sub = '未来 ' + span + ' 小时最高降雨概率 ' + maxPop + '%';
+        if (sumRain > 0) { sub += '，累计约 ' + sumRain + ' mm'; }
+        sub += '。';
+      } else if (lv === 1) {
+        sub = '未来 ' + span + ' 小时最高降雨概率 ' + maxPop + '%，可能有零星降雨。';
+      } else {
+        sub = '未来 ' + span + ' 小时最高降雨概率仅 ' + maxPop + '%，基本无雨。';
+      }
+      if (offWet) {
+        var sum = (dInfo && nInfo) ? (dInfo === nInfo ? dInfo : dInfo + '转' + nInfo) : (dInfo || nInfo);
+        sub += '中国气象局今日预报：' + sum + '。';
       }
       var tipEl = document.getElementById('wx-tip');
-      tipEl.className = 'wx-tip ' + cls;
-      tipEl.textContent = tip;
+      tipEl.className = 'wx-tip lv' + lv;
+      tipEl.textContent = lv === 2 ? '☂️ 记得带伞' : (lv === 1 ? '🌂 建议备把伞' : '✅ 不用带伞');
       document.getElementById('wx-tip-sub').textContent = sub;
 
-      var hh = ['<div class="wx-sub">未来 6 小时</div>'];
-      for (i = start; i < Math.min(start + 6, h.time.length); i++) {
-        var hc = wmo(h.weather_code[i]);
-        hh.push('<div class="wx-hrow"><span>' + h.time[i].slice(11, 16) + '</span><span>' + hc[1]
-          + '</span><span>' + r0(h.temperature_2m[i]) + '°</span><span>'
-          + (h.precipitation_probability[i] == null ? '—' : r0(h.precipitation_probability[i]) + '%')
-          + '</span></div>');
-      }
-      document.getElementById('wx-hourly').innerHTML = hh.join('');
+      renderHourly();
+      renderSeg();
 
-      var dd = ['<div class="wx-sub">未来两天</div>'];
-      for (i = 0; i < Math.min(2, dy.time.length); i++) {
-        var dc = wmo(dy.weather_code[i]);
-        dd.push('<div class="wx-drow"><span>' + (i === 0 ? '今天' : '明天') + ' '
-          + dc[1] + dc[0] + '</span><span>' + r0(dy.temperature_2m_min[i]) + '~'
-          + r0(dy.temperature_2m_max[i]) + '° · '
-          + r0(dy.precipitation_probability_max[i] == null ? 0 : dy.precipitation_probability_max[i])
-          + '%</span></div>');
+      /* —— 观测时间与数据来源 —— */
+      var pt = txt(real && real.publish_time);
+      if (stale) {
+        setUpd('离线快照（生成于 ' + ((SNAP && SNAP.generated_at) || '—') + '）· 正在获取实时天气…', '');
+      } else {
+        var isNmc = pt.length >= 16;
+        var hhmm = isNmc ? pt.slice(11, 16) : (txt(cur.time).slice(11, 16) || '—');
+        var lag = isNmc ? lagMin(pt) : null;
+        var line = isNmc ? ('中国气象局河源站 ' + hhmm + ' 观测') : ('更新于 ' + hhmm);
+        if (lag !== null && lag >= 0) { line += ' · ' + lagText(lag); }
+        setUpd(line, (lag !== null && lag > 90) ? 'old' : 'ok');
       }
-      document.getElementById('wx-daily').innerHTML = dd.join('');
+      if (elSrc) { elSrc.textContent = '数据来源：中国气象局（河源站）+ Open-Meteo · 每 5 分钟自动更新'; }
 
-      elUpd.textContent = stale
-        ? ('离线快照（生成于 ' + (d.generated_at || '—') + '）· 正在获取实时天气…')
-        : ('更新于 ' + (cur.time ? cur.time.slice(11, 16) : '—'));
       hasData = true;
       show(elLoad, false); show(elErr, false); show(elBody, true);
     } catch (e) { fail(); }
   }
 
   function fail() {
-    if (hasData) { elUpd.textContent = '刷新失败 · 显示上次数据 · 正在自动重试…'; }
+    if (elBtn) { elBtn.classList.remove('is-busy'); elBtn.title = '刷新天气'; }
+    if (hasData) { setUpd('刷新失败 · 显示上次数据 · 正在自动重试…', 'old'); }
     else { show(elLoad, false); show(elBody, false); show(elErr, true); }
     if (retry < RETRY_DELAYS.length) {
       if (rtTimer) { clearTimeout(rtTimer); }
@@ -376,30 +703,64 @@
     }
   }
 
-  function load() {
-    if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
+  function xhr(url, ok, bad) {
     var req = new XMLHttpRequest();
-    /* 带时间戳参数，绕过浏览器缓存，保证每次打开页面都取到最新数据 */
-    req.open('GET', API + '&_t=' + Date.now(), true);
-    req.timeout = 10000;
+    /* 带时间戳参数绕过浏览器缓存，保证每次打开都取到最新数据 */
+    req.open('GET', url, true);
+    req.timeout = 12000;
     req.onreadystatechange = function () {
-      if (req.readyState !== 4) return;
+      if (req.readyState !== 4) { return; }
       if (req.status >= 200 && req.status < 300) {
-        try {
-          render(JSON.parse(req.responseText), false);
-          retry = 0; lastOk = Date.now();
-          return;
-        } catch (e) {}
+        try { ok(JSON.parse(req.responseText)); return; } catch (e) {}
       }
-      fail();
+      bad();
     };
-    req.ontimeout = fail;
-    req.onerror = fail;
-    try { req.send(); } catch (e) { fail(); }
+    req.ontimeout = bad;
+    req.onerror = bad;
+    try { req.send(); } catch (e) { bad(); }
   }
 
-  /* 打开页面即自动拉取实时天气 */
-  if (SNAP) { render(SNAP, true); } else { show(elLoad, true); }
+  /* 两个源同时拉；任意一个成功就先渲染，两个失败才报错重试 */
+  function load() {
+    if (rtTimer) { clearTimeout(rtTimer); rtTimer = null; }
+    if (elBtn) { elBtn.classList.add('is-busy'); elBtn.title = '正在刷新…'; }
+    var got = 0;
+    function tick() {
+      got++;
+      if (got < 2) { return; }
+      if (elBtn) { elBtn.classList.remove('is-busy'); elBtn.title = '刷新天气'; }
+      if (om || nmc) { render(false); retry = 0; lastOk = Date.now(); flashOk(); }
+      else { fail(); }
+    }
+    xhr(NMC + '&_=' + Date.now(), function (j) {
+      var d = (j && j.data) || null;
+      if (d && (d.real || d.predict)) { nmc = d; }
+      tick();
+    }, tick);
+    xhr(API + '&_t=' + Date.now(), function (j) {
+      if (j && j.hourly && j.hourly.time && j.hourly.time.length) { om = j; }
+      tick();
+    }, tick);
+  }
+
+  /* 分时窗口切换 */
+  [].forEach.call(document.querySelectorAll('.wx-seg-b'), function (b) {
+    b.addEventListener('click', function () {
+      var v = parseInt(b.getAttribute('data-span'), 10);
+      if (SPANS.indexOf(v) < 0) { return; }
+      span = v;
+      try { localStorage.setItem('dw_wx_span', String(v)); } catch (e) {}
+      renderSeg();
+      renderHourly();
+    });
+  });
+
+  /* 先用生成时写入的离线快照顶上，再拉实时数据 */
+  if (SNAP && (SNAP.om || SNAP.nmc)) {
+    om = SNAP.om || null; nmc = SNAP.nmc || null; render(true);
+  } else {
+    show(elLoad, true);
+  }
   load();
   document.getElementById('wx-refresh').addEventListener('click', load);
   document.getElementById('wx-retry').addEventListener('click', load);
@@ -409,8 +770,52 @@
   }
   document.addEventListener('visibilitychange', refreshIfStale);
   window.addEventListener('focus', refreshIfStale);
-  /* 页面在前台时每 15 分钟自动刷新一次 */
-  setInterval(function () { if (!document.hidden) { load(); } }, 15 * 60 * 1000);
+  /* 页面在前台时每 5 分钟自动刷新一次 */
+  setInterval(function () { if (!document.hidden) { load(); } }, 5 * 60 * 1000);
+})();
+
+/* ===== 封面：手机 / 电脑 版面选择 ===== */
+(function () {
+  var root = document.documentElement;
+  var cover = document.getElementById('cover');
+  function setMode(m) {
+    root.classList.remove('mode-mobile', 'mode-desktop');
+    root.classList.add('mode-' + m, 'ready');
+    try { localStorage.setItem('dw_view_mode', m); } catch (e) {}
+  }
+  if (cover) {
+    [].forEach.call(cover.querySelectorAll('.cover-btn'), function (b) {
+      b.addEventListener('click', function () { setMode(b.getAttribute('data-mode')); });
+    });
+    /* 第一次进入且屏幕很窄：把「手机」标成推荐 */
+    if (window.innerWidth <= 640 && !root.classList.contains('ready')) {
+      var s = cover.querySelector('.cover-btn[data-mode="mobile"]');
+      if (s) { s.classList.add('is-suggest'); }
+    }
+  }
+  [].forEach.call(document.querySelectorAll('.mode-switch'), function (b) {
+    b.addEventListener('click', function () { setMode(b.getAttribute('data-mode')); });
+  });
+})();
+
+/* ===== 手机端：顶部星期切换，默认不显示任何一天 ===== */
+(function () {
+  var tabs = [].slice.call(document.querySelectorAll('.m-tab'));
+  var days = [].slice.call(document.querySelectorAll('.m-day'));
+  var hint = document.getElementById('m-hint');
+  if (!tabs.length) { return; }
+  function pick(d) {
+    tabs.forEach(function (t) { t.classList.toggle('is-active', t.getAttribute('data-d') === d); });
+    days.forEach(function (p) { p.classList.toggle('is-on', p.getAttribute('data-d') === d); });
+    if (hint) { hint.classList.toggle('is-hidden', !!d); }
+  }
+  tabs.forEach(function (t) {
+    t.addEventListener('click', function () {
+      var d = t.getAttribute('data-d');
+      pick(t.classList.contains('is-active') ? null : d);   /* 再点一次收起 */
+    });
+  });
+  pick(null);
 })();
 </script>
 </body>
