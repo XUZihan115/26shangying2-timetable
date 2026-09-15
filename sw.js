@@ -1,7 +1,7 @@
 /* 26商英2 课表 · Service Worker：离线缓存 + 可安装
    页面导航走「网络优先」，保证每次上线都能拿到新版；断网时回退到缓存副本。
    跨域请求(天气接口)不拦截，失败由页面自己提示。 */
-const VER = 'sy2-64b15171c0';
+const VER = 'sy2-4bdf14b76c';
 const BASE = new URL('./', self.location).href;
 const SHELL = [BASE, BASE + 'index.html', BASE + 'manifest.webmanifest',
                BASE + 'icon-192.png', BASE + 'icon-512.png', BASE + 'apple-touch-icon.png'];
