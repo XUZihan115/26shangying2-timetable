@@ -409,10 +409,10 @@ if(m==='mobile'||m==='desktop'){document.documentElement.classList.add('mode-'+m
       <h1>26商英2 · 班级课程表</h1>
       <p class="sub">外国语学院 &nbsp;|&nbsp; 河源校区 &nbsp;|&nbsp; 共 11 门课程</p>
     </div>
-    <div class="wk-badge" id="wk-badge"><b>第 2 周</b><span>09/14–09/20</span></div>
+    <div class="wk-badge" id="wk-badge"><b>第 3 周</b><span>09/19–09/25</span></div>
     <div class="clock">
       <div class="clk-time" id="clk-time">--:--:--</div>
-      <div class="clk-wk" id="clk-week"><b>第 2 周</b><i>09/14–09/20</i></div>
+      <div class="clk-wk" id="clk-week"><b>第 3 周</b><i>09/19–09/25</i></div>
       <div class="clk-date" id="clk-date">正在获取时间…</div>
       <div class="clk-zone">北京时间 · UTC+8</div>
     </div>
@@ -601,12 +601,12 @@ if(m==='mobile'||m==='desktop'){document.documentElement.classList.add('mode-'+m
   setInterval(tick, 1000);
 })();
 
-/* ===== 教学周：锚定 2026, 8, 14(周一)为第 2 周，每周一自动 +1 =====
+/* ===== 教学周：锚定 2026, 8, 19(周六)为第 3 周，每周六自动 +1 =====
    本周有课的课程保持原色；本周不上的转灰并标注「第X周无课程安排」。
    同一套逻辑同时管桌面端格子和手机端卡片。 */
 (function () {
-  var WK_ANCHOR = Date.UTC(2026, 8, 14);
-  var WK_BASE = 2;
+  var WK_ANCHOR = Date.UTC(2026, 8, 19);
+  var WK_BASE = 3;
   var DAY = 86400000;
   var bEl = document.getElementById('wk-badge');
   var cEl = document.getElementById('clk-week');
@@ -618,7 +618,7 @@ if(m==='mobile'||m==='desktop'){document.documentElement.classList.add('mode-'+m
               month: '2-digit', day: '2-digit' }).format(new Date()).split('-');
     var today = Date.UTC(+p[0], +p[1] - 1, +p[2]);
     var k = Math.floor((today - WK_ANCHOR) / (7 * DAY));
-    return { week: Math.max(1, WK_BASE + k), mon: WK_ANCHOR + k * 7 * DAY };
+    return { week: Math.max(1, WK_BASE + k), start: WK_ANCHOR + k * 7 * DAY };
   }
 
   /* '2-15' / '3,6-10' 里是否含第 wk 周 */
@@ -708,7 +708,7 @@ if(m==='mobile'||m==='desktop'){document.documentElement.classList.add('mode-'+m
       var wanted = keep.concat(rest);
       for (var k = 0; k < wanted.length; k++) { box.appendChild(wanted[k]); }
     }
-    var rng = md(info.mon) + '\u2013' + md(info.mon + 6 * DAY);
+    var rng = md(info.start) + '\u2013' + md(info.start + 6 * DAY);
     if (bEl) { bEl.innerHTML = '<b>第 ' + wk + ' 周</b><span>' + rng + '</span>'; }
     if (cEl) { cEl.innerHTML = '<b>第 ' + wk + ' 周</b><i>' + rng + '</i>'; }
   }
